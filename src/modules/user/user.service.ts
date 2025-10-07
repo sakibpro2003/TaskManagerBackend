@@ -14,9 +14,23 @@ const registerUser = async (userData: TUser) => {
     expiresIn: "7d",
   });
 
-  return token;
+  return {token};
+};
+
+const loginUser = async (email: string, password: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("User not found");
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) throw new Error("Password do not match");
+
+  const token = jwt.sign({ id: user._id }, config.jwtsecret!, {
+    expiresIn: "7d",
+  });
+  return {token};
 };
 
 export const userServices = {
-  registerUser,
+  registerUser,loginUser
 };
